@@ -1,12 +1,19 @@
 import React, { useState } from "react";
 import { View, Text, Pressable, TextInput, StyleSheet } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
-import { increment, decrement, incrementByAmount } from "./store/counterSlice";
+import {
+  increment,
+  decrement,
+  incrementByAmount,
+  incrementByAmountAsync,
+} from "./store/counterSlice";
 
 function CounterFeature() {
   const [incrementAmount, setIncrementAmount] = useState("2");
 
   const count = useSelector((state) => state.counter.value);
+  const isPending = useSelector((state) => state.counter.isPending);
+  const error = useSelector((state) => state.counter.error);
   const dispatch = useDispatch();
 
   return (
@@ -42,10 +49,21 @@ function CounterFeature() {
             dispatch(incrementByAmount(Number(incrementAmount) || 0));
           }}
         >
-          <Text style={styles.buttonText}>Add Amount</Text>
+          <Text style={styles.buttonText}>Add</Text>
+        </Pressable>
+        <Pressable
+          style={[styles.button, styles.addButton]}
+          onPress={() => {
+            dispatch(incrementByAmountAsync(Number(incrementAmount) || 0));
+          }}
+        >
+          <Text style={styles.buttonText}>Add Async</Text>
         </Pressable>
       </View>
-      <Text style={styles.counterText}>{count}</Text>
+      <Text style={styles.counterText}>
+        {isPending ? "Evaluating..." : count}
+      </Text>
+      {error && <Text style={styles.errorText}>{error}</Text>}
     </View>
   );
 }
@@ -87,6 +105,11 @@ const styles = StyleSheet.create({
   counterText: {
     fontSize: 32,
     margin: 8,
+  },
+  errorText: {
+    fontSize: 26,
+    margin: 8,
+    color: "red",
   },
 });
 
